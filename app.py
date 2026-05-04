@@ -95,8 +95,8 @@ def parse_with_gemini(mime_type, data_b64):
         }
     }
 
-    # Using v1beta with Gemini 3 Flash (latest available in 2026)
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={GEMINI_API_KEY}'
+    # Using v1beta with Gemini 1.5 Flash (Most stable and widely available)
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}'
            
     session = requests.Session()
     resp = session.post(url, json=body, timeout=60)
