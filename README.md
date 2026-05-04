@@ -1,65 +1,67 @@
-# 🍱 Shokudou Menu (ระบบจัดการเมนูโรงอาหาร)
+# 🍱 Shokudou Menu (ระบบจัดการเมนูโรงอาหารอัจฉริยะ)
 
-ระบบจัดการและแสดงผลเมนูอาหารรายสัปดาห์แบบอัตโนมัติ โดยใช้ AI (Gemini API) ในการดึงข้อมูลจากรูปภาพหรือไฟล์ PDF ของโรงอาหาร Kochi NIT (Kosen) เพื่อความสะดวกในการตรวจสอบเมนูอาหารล่วงหน้า
+ระบบจัดการและแสดงผลเมนูอาหารรายสัปดาห์แบบอัตโนมัติ สำหรับโรงอาหาร Kochi NIT (Kosen) โดยใช้พลังของ AI (Gemini API) ในการอ่านไฟล์ PDF/รูปภาพ และแสดงผลผ่านหน้าเว็บที่สวยงามและใช้งานง่าย
 
 ---
 
 ## 🌟 คุณสมบัติเด่น (Features)
 
-*   **🔄 Auto-Sync**: ระบบคำนวณวันจันทร์ของสัปดาห์ปัจจุบัน และดึงไฟล์ PDF เมนูจากเว็บไซต์โรงอาหารโดยอัตโนมัติ
-*   **🤖 AI Menu Parsing**: ใช้ **Gemini API (Flash Preview)** ในการอ่านและสกัดข้อมูลจากรูปภาพเมนูหรือไฟล์ PDF แปลงเป็นข้อมูล JSON ที่พร้อมใช้งาน
-*   **📅 Weekly Dashboard**: หน้าแสดงผลเมนูอาหารที่สวยงาม แบ่งตามวัน (จันทร์-อาทิตย์) และมื้ออาหาร (เช้า, กลางวัน, เย็น)
-*   **🛡️ Admin Management**: ระบบหลังบ้านสำหรับ:
-    *   อัปโหลดรูปภาพเมนูใหม่
-    *   ดึงข้อมูลจาก URL ของโรงอาหารโดยตรง
-    *   แก้ไขข้อมูลเมนูอาหารด้วยตนเอง
-    *   จัดการลบข้อมูลรายวันหรือลบทั้งหมด
-*   **📊 Nutrition Info**: แสดงข้อมูลแคลอรี่ (kcal) และรายการอาหารย่อย (Side dishes) ในแต่ละมื้อ
+*   **🔄 Auto-Sync**: ดึงไฟล์ PDF เมนูจากเว็บไซต์โรงอาหารโดยอัตโนมัติอ้างอิงตามสัปดาห์ปัจจุบัน
+*   **🤖 AI Parser**: ใช้ **Gemini 1.5 Flash** ในการสกัดข้อมูลเมนูอาหารญี่ปุ่นจาก PDF เป็น JSON อย่างแม่นยำ
+*   **📅 Weekly Dashboard**: หน้าเมนูสำหรับนักเรียนที่รองรับ Dark Mode และ Responsive (มือถือดูง่าย)
+*   **🖼️ AI Food Images**: สร้างรูปภาพจำลองเมนูอาหารให้น่ารับประทานโดยใช้ Pollinations AI
+*   **🛡️ Admin Panel**: ระบบจัดการหลังบ้านที่ครบครัน (Upload, URL Fetch, Manual Edit, Delete)
+*   **🔒 Security First**: จัดเก็บ API Key ผ่าน Environment Variables ป้องกันรหัสหลุดสู่สาธารณะ
 
 ---
 
-## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
+## 🛠️ เทคโนโลยี (Tech Stack)
 
 *   **Backend**: Python (Flask)
-*   **Database**: SQLite3 (มีความเบาและไม่ต้องตั้งค่าเซิร์ฟเวอร์แยก)
-*   **AI Integration**: Google Gemini 3 Flash (v1beta)
-*   **Frontend**: HTML5, Vanilla CSS (Modern Design), JavaScript (Fetch API)
+*   **Database**: SQLite3
+*   **AI Engine**: Google Gemini 1.5 Flash (API)
+*   **Deployment**: Render.com / Gunicorn
+*   **Frontend**: Vanilla HTML5, Modern CSS (Glassmorphism), JavaScript (ES6)
 
 ---
 
-## 🚀 การติดตั้งและเริ่มใช้งาน (Getting Started)
+## 🚀 การติดตั้งและเริ่มใช้งาน (Local Installation)
 
-### 1. ติดตั้งสิ่งที่จำเป็น
-ตรวจสอบว่าคุณมี Python 3.8 ขึ้นไปติดตั้งอยู่ในเครื่อง
+1.  **Clone Repository**
+    ```bash
+    git clone https://github.com/Kunpacito/KochiKosen_menu.git
+    cd KochiKosen_menu
+    ```
 
-```bash
-# ตรวจสอบเวอร์ชัน Python
-python --version
-```
+2.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### 2. ติดตั้ง Dependencies
-ติดตั้งไลบรารีที่จำเป็นผ่าน pip:
+3.  **Setup Environment Variables**
+    *   สร้างไฟล์ `.env` ในโฟลเดอร์หลัก
+    *   เพิ่ม API Key ของคุณ:
+    ```env
+    GEMINI_API_KEY=your_api_key_here
+    ```
 
-```bash
-pip install -r requirements.txt
-```
+4.  **Run Application**
+    ```bash
+    python app.py
+    ```
+    เข้าใช้งานที่: `http://localhost:5000`
 
-### 3. ตั้งค่า API Key
-เปิดไฟล์ `app.py` และระบุ **Gemini API Key** ของคุณในส่วนหัวของไฟล์:
+---
 
-```python
-# app.py
-GEMINI_API_KEY = 'AIzaSy...' # ใส่ API Key ของคุณที่นี่
-```
+## 🌐 การนำขึ้น Server (Deployment to Render)
 
-### 4. รันแอปพลิเคชัน
-เริ่มการทำงานของเซิร์ฟเวอร์:
-
-```bash
-python app.py
-```
-
-เข้าใช้งานผ่านเบราว์เซอร์ที่: [http://localhost:5000](http://localhost:5000)
+โปรเจคนี้พร้อมสำหรับการ Deploy บน Render.com ทันที:
+1.  **Push โค้ดขึ้น GitHub** (ตั้งค่า Repository เป็น **Private**)
+2.  **เชื่อมต่อกับ Render**: สร้าง Web Service ใหม่และเลือก Repo นี้
+3.  **ตั้งค่า Environment**: ในหน้า Dashboard ของ Render ให้เพิ่ม Variable ชื่อ `GEMINI_API_KEY`
+4.  **Build & Start**: 
+    *   Build: `pip install -r requirements.txt`
+    *   Start: `gunicorn app:app`
 
 ---
 
@@ -67,23 +69,18 @@ python app.py
 
 ```text
 shokudou_menu/
-├── app.py              # ไฟล์หลักควบคุม Server Logic และ AI Integration
-├── shokudou.db         # ฐานข้อมูล SQLite (สร้างให้อัตโนมัติ)
+├── app.py              # Backend Logic & AI Integration
+├── .env                # เก็บ API Key (ห้ามอัปโหลด!)
+├── .gitignore          # ระบุไฟล์ที่ไม่ต้องการนำขึ้น GitHub
+├── Procfile            # คำสั่งสำหรับรันบน Server (Render)
 ├── requirements.txt    # รายการ Library ที่ต้องใช้
-├── templates/          # ไฟล์ HTML Templates
-│   ├── menu.html       # หน้า Dashboard สำหรับผู้ใช้
-│   └── admin.html      # หน้าจัดการระบบสำหรับ Admin
-├── static/             # ไฟล์ Static Assets
-│   ├── css/            # ไฟล์สไตล์การตกแต่ง
-│   └── uploads/        # โฟลเดอร์เก็บไฟล์ PDF/รูปภาพ ที่อัปโหลด
-└── README.md           # ไฟล์เอกสารแนะนำโปรเจค
+├── templates/          # HTML Templates (menu.html, admin.html)
+├── static/             # Static Assets & Uploads
+└── README.md           # คู่มือการใช้งาน
 ```
 
 ---
 
 ## 📝 หมายเหตุ
-- ระบบถูกออกแบบมาเพื่อรองรับรูปแบบไฟล์ PDF ของโรงอาหาร Kochi NIT (Kosen) เป็นหลัก
-- ในการใช้งานฟีเจอร์ AI จำเป็นต้องมีการเชื่อมต่ออินเทอร์เน็ตเพื่อส่งข้อมูลไปยัง Gemini API
-
----
-พัฒนาโดย [Kunna] - ส่วนหนึ่งของโปรเจค RoadToIntern
+- ข้อมูลใน SQLite (`shokudou.db`) จะหายไปหากใช้ Render แผนฟรี (Ephemeral Storage) แต่ระบบสามารถ Sync ข้อมูลใหม่ได้เสมอ
+- พัฒนาต่อยอดจากโปรเจค **RoadToIntern** โดย [Kunna]
