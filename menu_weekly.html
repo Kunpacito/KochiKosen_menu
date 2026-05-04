@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食堂 Weekly Menu</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap');
+
+  :root {
+    --bg: #faf8f4;
+    --surface: #ffffff;
+    --surface2: #f3f0ea;
+    --border: #e8e2d8;
+    --text: #2c2820;
+    --text2: #7a7060;
+    --text3: #b0a898;
+    --accent: #c8783c;
+    --accent2: #8b5a2b;
+    --accent-light: #fdf0e6;
+    --green: #4a7c59;
+    --green-light: #edf5f0;
+    --blue: #3d6b8e;
+    --blue-light: #edf3f8;
+    --radius: 16px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 12px rgba(44,40,32,0.08);
+    --shadow-lg: 0 8px 32px rgba(44,40,32,0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 2rem 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(200,120,60,0.15);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: 30%;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(200,120,60,0.08);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+  }
+  .header-title span {
+    display: block;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .header-date-range {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Upload Zone ── */
+  .upload-section {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  .upload-box {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .upload-box:hover, .upload-box.drag-over {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .upload-box input[type=file] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100%; height: 100%;
+  }
+  .upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .upload-label {
+    font-size: 0.95rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .upload-label strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .upload-hint {
+    font-size: 0.75rem;
+    color: var(--text3);
+    margin-top: 0.5rem;
+  }
+
+  /* ── Nav Tabs ── */
+  .nav-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+  }
+  .nav-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    background: var(--surface);
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text2);
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tab-btn.active {
+    background: var(--text);
+    border-color: var(--text);
+    color: #fff;
+    font-weight: 500;
+  }
+  .tab-btn .day-abbr { font-weight: 500; }
+  .tab-btn .today-dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+
+  /* ── Main Content ── */
+  .main {
+    max-width: 900px;
+    margin: 1rem auto 3rem;
+    padding: 0 1rem;
+  }
+
+  /* Date header */
+  .date-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1.5px solid var(--border);
+  }
+  .date-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .date-month { font-size: 0.8rem; color: var(--text2); letter-spacing: 0.08em; }
+  .date-day { font-size: 1rem; font-weight: 500; color: var(--text); }
+  .today-badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    align-self: flex-start;
+  }
+
+  /* Meal section */
+  .meal-section {
+    margin-bottom: 1.5rem;
+  }
+  .meal-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  .meal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px 5px 10px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+  .meal-tag.asa { background: #fff8f0; color: var(--accent2); border: 1.5px solid #f5d9bc; }
+  .meal-tag.hiru { background: var(--green-light); color: var(--green); border: 1.5px solid #c3dfcc; }
+  .meal-tag.yu { background: var(--blue-light); color: var(--blue); border: 1.5px solid #c0d6e8; }
+  .meal-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+  .meal-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Card */
+  .meal-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+  }
+  .meal-image-wrap {
+    width: 200px;
+    min-width: 200px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .meal-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    min-height: 160px;
+  }
+  .meal-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    min-height: 160px;
+    cursor: pointer;
+    padding: 1rem;
+  }
+  .meal-image-placeholder:hover { background: var(--border); }
+  .placeholder-icon { font-size: 1.8rem; opacity: 0.3; }
+  .placeholder-text { font-size: 0.7rem; color: var(--text3); text-align: center; line-height: 1.4; }
+  .meal-body {
+    flex: 1;
+    padding: 1.25rem 1.5rem;
+    min-width: 0;
+  }
+  .meal-main {
+    font-size: 0.78rem;
+    color: var(--text3);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+  .meal-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 1rem;
+  }
+  .meal-items li {
+    font-size: 0.88rem;
+    color: var(--text);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    line-height: 1.5;
+  }
+  .meal-items li::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+    position: relative;
+    top: -1px;
+    margin-top: 8px;
+  }
+  .meal-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .kcal-label {
+    font-size: 0.7rem;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .kcal-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  /* Image upload on card */
+  .img-upload-input {
+    display: none;
+  }
+
+  /* Overlay button on meal image */
+  .img-overlay-btn {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    transition: background 0.18s, transform 0.18s;
+    z-index: 2;
+    backdrop-filter: blur(4px);
+  }
+  .img-overlay-btn:hover {
+    background: rgba(255,255,255,1);
+    transform: scale(1.1);
+  }
+
+  /* No data */
+  .no-data {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text3);
+    font-size: 0.9rem;
+  }
+
+  /* Image loading spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .img-spinner {
+    width: 26px; height: 26px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65); z-index: 1000;
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-box {
+    background: var(--surface); border-radius: var(--radius);
+    width: 100%; max-width: 900px; max-height: 92vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal-hdr {
+    padding: .9rem 1.4rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .modal-hdr h2 { font-size: .95rem; font-weight: 600; }
+  .modal-close {
+    background: none; border: none; font-size: 1.1rem;
+    cursor: pointer; color: var(--text2); padding: 4px 8px;
+    border-radius: 6px; transition: background .15s;
+  }
+  .modal-close:hover { background: var(--surface2); }
+  .modal-body { display: flex; flex: 1; overflow: hidden; }
+  .modal-img-side {
+    width: 42%; background: #111; overflow: auto;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: .75rem; flex-shrink: 0;
+  }
+  .modal-img-side img { max-width: 100%; border-radius: var(--radius-sm); }
+  .modal-form-side { flex: 1; overflow-y: auto; padding: 1.25rem; }
+  .mf-row { margin-bottom: 1rem; }
+  .mf-row label {
+    display: block; font-size: .75rem; font-weight: 600;
+    color: var(--text2); margin-bottom: 5px; letter-spacing: .04em;
+  }
+  .mf-row input, .mf-row textarea {
+    width: 100%; padding: 8px 11px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'Noto Sans JP', sans-serif; font-size: .84rem;
+    color: var(--text); background: var(--surface);
+    transition: border-color .15s; resize: vertical;
+  }
+  .mf-row input:focus, .mf-row textarea:focus { outline: none; border-color: var(--accent); }
+  .mf-day-hdr {
+    background: var(--surface2); border-radius: var(--radius-sm);
+    padding: 8px 12px; font-size: .84rem; font-weight: 600;
+    color: var(--text); margin: 1rem 0 .6rem; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mf-meal-grid { display: grid; grid-template-columns: 1fr 110px; gap: 8px; margin-bottom: 6px; align-items: start; }
+  .mf-meal-lbl { font-size: .72rem; color: var(--text2); font-weight: 500; margin-bottom: 3px; }
+  .modal-ftr {
+    padding: .9rem 1.4rem; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end; flex-shrink: 0;
+  }
+  .btn-pri {
+    background: var(--text); color: #fff; border: none;
+    padding: 9px 22px; border-radius: 100px;
+    font-family: 'Noto Sans JP', sans-serif; font-size: .84rem;
+    font-weight: 500; cursor: pointer; transition: opacity .15s;
+  }
+  .btn-pri:hover { opacity: .82; }
+  .btn-sec {
+    background: none; color: var(--text2);
+    border: 1.5px solid var(--border); padding: 9px 18px;
+    border-radius: 100px; font-family: 'Noto Sans JP', sans-serif;
+    font-size: .84rem; cursor: pointer; transition: border-color .15s, color .15s;
+  }
+  .btn-sec:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Mobile */
+  @media (max-width: 600px) {
+    .meal-card { flex-direction: column; }
+    .meal-image-wrap { width: 100%; min-width: unset; min-height: 180px; }
+    .meal-body { padding: 1rem; }
+    .modal-body { flex-direction: column; }
+    .modal-img-side { width: 100%; max-height: 180px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      <span>Shokudo</span>
+      Weekly Menu
+    </div>
+    <div class="header-date-range" id="dateRange">5/4 – 5/10, 2026</div>
+  </div>
+</header>
+
+<!-- Upload Zone -->
+<div class="upload-section" id="uploadSection">
+  <div class="upload-box" id="globalUploadBox">
+    <input type="file" id="menuImageInput" accept="image/*,application/pdf" multiple>
+    <div class="upload-icon">📋</div>
+    <div class="upload-label">
+      <strong>อัปโหลดรูปเมนูประจำสัปดาห์</strong><br>
+      ถ่ายรูปหรือสแกนตารางเมนู แล้วอัปโหลดที่นี่เพื่ออัปเดตข้อมูล
+    </div>
+    <div class="upload-hint">รองรับ: JPG, PNG, PDF · ข้อมูลเมนูแต่ละวันจะอ่านจากรูปที่อัปโหลด</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="nav-wrap">
+  <div class="nav-tabs" id="tabContainer"></div>
+</div>
+
+<!-- Main -->
+<div class="main" id="mainContent"></div>
+
+<script>
+const MENU_DATA = {
+  "2026-05-04": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャム or マーガリン",
+      items: ["ウインナーとスナップエンドウの炒め物","ブロッコリーのチーズ焼き","大根サラダ","味噌汁","牛乳"],
+      kcal: "A:1110kcal / B:862kcal",
+      image: "https://images.unsplash.com/photo-1585325701956-60dd9c8553bc?w=400&q=80"
+    },
+    "昼食": {
+      main: "ご飯",
+      items: ["五目あんかけ焼きそば","ブロッコリーのパンプキンサラダ","ぶどうゼリー"],
+      kcal: "975kcal",
+      image: "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["カツオカツ＆白身魚フライ（サスティナブル）","なすときゅうりの梅和え","ご飯","味噌汁"],
+      kcal: "916kcal",
+      image: "https://images.unsplash.com/photo-1580822184713-fc5400e7fe10?w=400&q=80"
+    }
+  },
+  "2026-05-05": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャม or マーガリン",
+      items: ["ロールキャベツ","五目豆と小松菜のポン酢和え","コールスローサラダ","味噌汁","牛乳"],
+      kcal: "A:1129kcal / B:881kcal",
+      image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80"
+    },
+    "昼食": {
+      main: "ご飯",
+      items: ["春のちらし寿司","切干大根とひじきの煮物","いちごショートケーキ","コーンスープ"],
+      kcal: "877kcal",
+      image: "https://images.unsplash.com/photo-1617196034183-421b4040d20d?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["ダブルハンバーグ（デミ・クリーム）","ほうれん草とえのきの和え物","味噌汁"],
+      kcal: "1005kcal",
+      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80"
+    }
+  },
+  "2026-05-06": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャม or マーガリン",
+      items: ["にら玉子とじ","チキンナゲット","野菜サラダ","味噌汁","アップルジュース"],
+      kcal: "A:1193kcal / B:945kcal",
+      image: "https://images.unsplash.com/photo-1562802378-063ec186a863?w=400&q=80"
+    },
+    "昼食": {
+      main: "ご飯",
+      items: ["冷やしクリーミーカレーうどん","イカとアスパラの塩炒め","白玉入りフルーツあんみつ"],
+      kcal: "1063kcal",
+      image: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["豚肉と香茸の青じそ炒め","5品目の胡麻和え","ご飯","味噌汁"],
+      kcal: "918kcal",
+      image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80"
+    }
+  },
+  "2026-05-07": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャム or マーガリン",
+      items: ["豆腐ハンバーグ","鶏ささみのレモン醤油","枝豆ポテトサラダ","味噌汁","牛乳"],
+      kcal: "A:1255kcal / B:1007kcal",
+      image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80"
+    },
+    "昼食": {
+      main: "",
+      items: ["塩だれ鶏丼","春菊とハムの和え物","パイン缶","味噌汁"],
+      kcal: "930kcal",
+      image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["メンチカツ","長芋とモロヘイヤのポン酢和え","ご飯","味噌汁"],
+      kcal: "958kcal",
+      image: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?w=400&q=80"
+    }
+  },
+  "2026-05-08": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャม or マーガリン",
+      items: ["鶏肉の煮焼き","白菜の煮漬し","野菜サラダ","味噌汁","牛乳"],
+      kcal: "A:1300kcal / B:1052kcal",
+      image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=400&q=80"
+    },
+    "昼食": {
+      main: "ご飯",
+      items: ["十勝風豚丼","青梗菜の辛子和え","ストロベリーゼリー","澄まし汁"],
+      kcal: "962kcal",
+      image: "https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["赤担々麻婆","水餃子","ご飯","味噌汁"],
+      kcal: "983kcal",
+      image: "https://images.unsplash.com/photo-1534482421-64566f976cfa?w=400&q=80"
+    }
+  },
+  "2026-05-09": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャม or マーガリン",
+      items: ["ハムソテー＆ジャーマンポテト","ナポリタン","温野菜サラダ","味噌汁","牛乳"],
+      kcal: "A:1245kcal / B:997kcal",
+      image: "https://images.unsplash.com/photo-1551183053-bf91798d792b?w=400&q=80"
+    },
+    "昼食": {
+      main: "",
+      items: ["海鮮チャーハン","春雨とわかめの煮の物","クレープ","チンゲン菜の中華スープ"],
+      kcal: "989kcal",
+      image: "https://images.unsplash.com/photo-1603133872878-684f08176b54?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["鶏肉のバジル炒め","いんげんとちくわの和え物","ご飯","澄まし汁"],
+      kcal: "979kcal",
+      image: "https://images.unsplash.com/photo-1569558087740-9f9c74b3c1f4?w=400&q=80"
+    }
+  },
+  "2026-05-10": {
+    "朝食": {
+      main: "A: ライス280g / B: パン・ジャม or マーガリン",
+      items: ["野菜入りスクランブルエッグ","ほうれん草のおろし和え","梅しらす丼","味噌汁","牛乳"],
+      kcal: "A:1176kcal / B:928kcal",
+      image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80"
+    },
+    "昼食": {
+      main: "",
+      items: ["五目野菜のそぼろ丼","さつま芋の甘煮","バナナ","味噌汁"],
+      kcal: "974kcal",
+      image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400&q=80"
+    },
+    "夕食": {
+      main: "",
+      items: ["豚肉のおろし煮","カリフラワーのわさび和え","ご飯","味噌汁"],
+      kcal: "1020kcal",
+      image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80"
+    }
+  }
+};
+
+const DAYS = Object.keys(MENU_DATA);
+const DAY_TH = ["จันทร์","อังคาร","พุธ","พฤหัส","ศุกร์","เสาร์","อาทิตย์"];
+const DAY_JP = ["月","火","水","木","金","土","日"];
+const MEALS = [
+  { key:"朝食", label:"มื้อเช้า", tag:"asa", icon:"🌅" },
+  { key:"昼食", label:"มื้อกลางวัน", tag:"hiru", icon:"☀️" },
+  { key:"夕食", label:"มื้อเย็น", tag:"yu", icon:"🌙" }
+];
+
+// Image store: key = "dateKey_mealKey", value = base64 data URL
+const images = {};
+
+// ── Wikipedia Food Image Search ───────────────────────────────────────────
+// Fetches a real food photo from Wikipedia using the Japanese dish name.
+// Falls back to Pollinations AI if Wikipedia has no image.
+const wikiImgCache = {};
+
+function strHash(str) {
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
+  return Math.abs(h);
+}
+
+function getAIImageUrl(dishName) {
+  const prompt = `Japanese food: ${dishName}, food photography, overhead, soft lighting`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=400&height=280&nologo=true&seed=${strHash(dishName)}`;
+}
+
+async function fetchWikiImage(dishName, imgEl) {
+  if (wikiImgCache[dishName]) { imgEl.src = wikiImgCache[dishName]; return; }
+  try {
+    const res = await fetch(
+      `https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(dishName)}`,
+      { headers: { Accept: 'application/json' } }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const src = data.thumbnail?.source;
+      if (src) { wikiImgCache[dishName] = src; imgEl.src = src; return; }
+    }
+  } catch(_) {}
+  // Fallback: AI generated
+  const aiSrc = getAIImageUrl(dishName);
+  wikiImgCache[dishName] = aiSrc;
+  imgEl.src = aiSrc;
+}
+
+function todayKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const d = String(now.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function currentMeal() {
+  const h = new Date().getHours();
+  if (h < 10) return "朝食";
+  if (h < 15) return "昼食";
+  return "夕食";
+}
+
+let activeDay = (() => {
+  const t = todayKey();
+  return DAYS.includes(t) ? t : DAYS[0];
+})();
+
+function buildTabs() {
+  const container = document.getElementById('tabContainer');
+  const today = todayKey();
+  container.innerHTML = '';
+  DAYS.forEach(dateKey => {
+    const d = new Date(dateKey + 'T00:00:00');
+    const wi = (d.getDay() + 6) % 7;
+    const isToday = dateKey === today;
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (dateKey === activeDay ? ' active' : '');
+    btn.innerHTML = `<span class="day-abbr">${d.getDate()}/${d.getMonth()+1}</span> ${DAY_JP[wi]}${isToday ? '<span class="today-dot"></span>' : ''}`;
+    btn.onclick = () => { activeDay = dateKey; buildTabs(); renderDay(); };
+    container.appendChild(btn);
+  });
+}
+
+function renderDay() {
+  const content = document.getElementById('mainContent');
+  const dateKey = activeDay;
+  const d = new Date(dateKey + 'T00:00:00');
+  const wi = (d.getDay() + 6) % 7;
+  const today = todayKey();
+  const isToday = dateKey === today;
+  const dayData = MENU_DATA[dateKey];
+
+  let html = `<div class="date-header">
+    <div class="date-num">${d.getDate()}</div>
+    <div class="date-info">
+      <div class="date-month">พฤษภาคม ${d.getFullYear()}</div>
+      <div class="date-day">วัน${DAY_TH[wi]} · ${DAY_JP[wi]}曜日</div>
+    </div>
+    ${isToday ? '<div class="today-badge">วันนี้</div>' : ''}
+  </div>`;
+
+  if (!dayData) {
+    html += `<div class="no-data">ไม่พบข้อมูลเมนูสำหรับวันนี้</div>`;
+    content.innerHTML = html;
+    return;
+  }
+
+  MEALS.forEach(meal => {
+    const info = dayData[meal.key];
+    if (!info) return;
+    const imgKey = `${dateKey}_${meal.key}`;
+    const mainDish = info.items[0] || meal.label;
+
+    html += `<div class="meal-section">
+      <div class="meal-label">
+        <div class="meal-tag ${meal.tag}"><span class="meal-dot"></span>${meal.icon} ${meal.label} / ${meal.key}</div>
+        <div class="meal-line"></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-image-wrap" id="wrap_${imgKey}">`;
+
+    if (images[imgKey]) {
+      html += `<img src="${images[imgKey]}" alt="${meal.label}" id="img_${imgKey}">`;
+    } else {
+      // Show spinner; Wikipedia image will load async after render
+      html += `<div class="img-spinner" id="spin_${imgKey}" style="position:absolute"></div>
+               <img src="" alt="${meal.label}" id="img_${imgKey}" data-dish="${info.items[0] || mainDish}" style="opacity:0;transition:opacity .4s">`;
+    }
+    html += `<label class="img-overlay-btn" for="file_${imgKey}" title="เปลี่ยนรูป">📷</label>
+             <input type="file" class="img-upload-input" id="file_${imgKey}" accept="image/*" data-key="${imgKey}">
+        </div>
+        <div class="meal-body">`;
+
+    if (info.main) {
+      html += `<div class="meal-main">${info.main}</div>`;
+    }
+
+    html += `<ul class="meal-items">`;
+    info.items.forEach(item => { html += `<li>${item}</li>`; });
+    html += `</ul>
+          <div class="meal-footer">
+            <span class="kcal-label">แคลอรี่</span>
+            <span class="kcal-value">${info.kcal}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  content.innerHTML = html;
+
+  // Async: load Wikipedia images for all cards without manual upload
+  document.querySelectorAll('img[data-dish]').forEach(async imgEl => {
+    const dish = imgEl.dataset.dish;
+    const spinId = imgEl.id.replace('img_', 'spin_');
+    await fetchWikiImage(dish, imgEl);
+    imgEl.style.opacity = '1';
+    const sp = document.getElementById(spinId);
+    if (sp) sp.remove();
+  });
+
+  // Bind per-card image inputs
+  document.querySelectorAll('.img-upload-input').forEach(input => {
+    input.addEventListener('change', e => {
+      const key = input.dataset.key;
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        images[key] = ev.target.result;
+        renderDay();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+}
+
+// Global upload zone
+const globalInput = document.getElementById('menuImageInput');
+const uploadBox = document.getElementById('globalUploadBox');
+
+uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.classList.add('drag-over'); });
+uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('drag-over'));
+uploadBox.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadBox.classList.remove('drag-over');
+  handleFiles(e.dataTransfer.files);
+});
+
+globalInput.addEventListener('change', e => handleFiles(e.target.files));
+
+// ── Upload → open week menu editor ──────────────────────────────────────
+function handleFiles(files) {
+  if (!files || files.length === 0) return;
+  const file = files[0];
+  if (!file.type.startsWith('image/')) {
+    alert('กรุณาอัปโหลดไฟล์รูปภาพ (JPG, PNG)');
+    return;
+  }
+  const mimeType = file.type;
+  const reader = new FileReader();
+  reader.onload = ev => openMenuModal(ev.target.result, mimeType);
+  reader.readAsDataURL(file);
+}
+
+// ── Gemini Vision: auto-parse menu table from image ──────────────────────
+async function parseMenuWithGemini(imgDataUrl, mimeType, apiKey) {
+  const base64 = imgDataUrl.split(',')[1];
+  const prompt = `This is a Japanese cafeteria (食堂) weekly menu table image.
+Extract ALL menu data for ALL 7 days and return ONLY valid JSON:
+{
+  "days": [
+    {
+      "date": "2026-MM-DD",
+      "朝食": { "main": "A: ライス280g / B: パン・ジャム or マーガリン", "items": ["dish1","dish2"], "kcal": "1100kcal" },
+      "昼食": { "main": "", "items": ["dish1","dish2"], "kcal": "900kcal" },
+      "夕食": { "main": "", "items": ["dish1","dish2"], "kcal": "950kcal" }
+    }
+  ]
+}
+Rules:
+- Columns = days (月〜日). Read dates from column headers (e.g. "5月11日" → "2026-05-11").
+- 朝食=morning row, 昼食=lunch row, 夕食=dinner row.
+- items: list each dish name separately.
+- kcal: the E (エネルギー) value for that meal.
+- Return ONLY the JSON object, no markdown, no explanation.`;
+
+  const body = {
+    contents: [{ parts: [
+      { text: prompt },
+      { inline_data: { mime_type: mimeType, data: base64 } }
+    ]}],
+    generationConfig: { temperature: 0.1, maxOutputTokens: 4096 }
+  };
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+  );
+  if (!res.ok) throw new Error(`Gemini API error ${res.status}`);
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('ไม่พบข้อมูล JSON ในคำตอบ');
+  return JSON.parse(match[0]);
+}
+
+async function openMenuModal(imgDataUrl, mimeType) {
+  document.getElementById('menuPreviewImg').src = imgDataUrl;
+  // Default week start = next Monday
+  const d = new Date();
+  d.setDate(d.getDate() + ((1 - d.getDay() + 7) % 7 || 7));
+  const iso = d.toISOString().slice(0, 10);
+  document.getElementById('weekStartDate').value = iso;
+  document.getElementById('menuModal').classList.add('active');
+
+  const apiKey = document.getElementById('geminiApiKey').value.trim() ||
+                 localStorage.getItem('geminiApiKey') || '';
+  if (apiKey) {
+    localStorage.setItem('geminiApiKey', apiKey);
+    document.getElementById('dayFormsContainer').innerHTML =
+      '<div style="padding:1.5rem;text-align:center;color:var(--text2)">🤖 AI กำลังอ่านตารางเมนู...<br><small>อาจใช้เวลา 5-15 วินาที</small></div>';
+    try {
+      const parsed = await parseMenuWithGemini(imgDataUrl, mimeType || 'image/jpeg', apiKey);
+      if (parsed.days && parsed.days.length > 0) {
+        const startDate = parsed.days[0].date;
+        document.getElementById('weekStartDate').value = startDate;
+        buildDayForms(startDate, parsed.days);
+        document.getElementById('aiStatus').textContent = `✅ AI อ่านได้ ${parsed.days.length} วัน — กรุณาตรวจสอบก่อนบันทึก`;
+      }
+    } catch(e) {
+      document.getElementById('aiStatus').textContent = `⚠️ AI อ่านไม่ได้: ${e.message}`;
+      buildDayForms(iso);
+    }
+  } else {
+    buildDayForms(iso);
+  }
+}
+
+function buildDayForms(startIso, prefilled) {
+  const start = new Date(startIso + 'T00:00:00');
+  const container = document.getElementById('dayFormsContainer');
+  const dayNames = ['จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์','อาทิตย์'];
+  const jpDay = ['月','火','水','木','金','土','日'];
+  const mealDefs = [{key:'朝食',label:'🌅 มื้อเช้า'},{key:'昼食',label:'☀️ มื้อกลางวัน'},{key:'夕食',label:'🌙 มื้อเย็น'}];
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const dd = new Date(start); dd.setDate(start.getDate() + i);
+    const dateStr = dd.toISOString().slice(0,10);
+    const wi = (dd.getDay() + 6) % 7;
+    html += `<div class="mf-day-hdr">📅 ${dd.getDate()}/${dd.getMonth()+1} วัน${dayNames[wi]} (${jpDay[wi]})</div>`;
+    // Use AI-prefilled data if available, else existing MENU_DATA
+    const aiDay = prefilled ? prefilled.find(x => x.date === dateStr) : null;
+    const existing = aiDay || MENU_DATA[dateStr] || {};
+    mealDefs.forEach(m => {
+      const ex = existing[m.key] || {};
+      html += `<div style="margin-bottom:.5rem">
+        <div class="mf-meal-lbl">${m.label}</div>
+        <div class="mf-meal-grid">
+          <div>
+            <div class="mf-meal-lbl">รายการอาหาร (คั่นด้วยจุลภาค)</div>
+            <textarea rows="2" id="items_${dateStr}_${m.key}">${(ex.items||[]).join(',')}</textarea>
+          </div>
+          <div>
+            <div class="mf-meal-lbl">แคลอรี่</div>
+            <input type="text" id="kcal_${dateStr}_${m.key}" placeholder="900kcal" value="${ex.kcal||''}">
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  container.innerHTML = html;
+}
+
+
+function closeModal() {
+  document.getElementById('menuModal').classList.remove('active');
+}
+
+function saveMenuFromForm() {
+  const startVal = document.getElementById('weekStartDate').value;
+  if (!startVal) { alert('กรุณาระบุวันเริ่มต้นสัปดาห์'); return; }
+  const start = new Date(startVal + 'T00:00:00');
+  const mealKeys = ['朝食','昼食','夕食'];
+  const newData = {};
+  for (let i = 0; i < 7; i++) {
+    const dd = new Date(start); dd.setDate(start.getDate() + i);
+    const dateStr = dd.toISOString().slice(0,10);
+    newData[dateStr] = {};
+    mealKeys.forEach(mk => {
+      const rawItems = document.getElementById(`items_${dateStr}_${mk}`)?.value || '';
+      const kcal = document.getElementById(`kcal_${dateStr}_${mk}`)?.value || '';
+      const items = rawItems.split(',').map(s=>s.trim()).filter(Boolean);
+      if (items.length) newData[dateStr][mk] = { main:'', items, kcal };
+    });
+  }
+  // REPLACE MENU_DATA entirely with new week (remove old dates)
+  Object.keys(MENU_DATA).forEach(k => delete MENU_DATA[k]);
+  Object.assign(MENU_DATA, newData);
+  // Rebuild DAYS
+  DAYS.length = 0;
+  Object.keys(MENU_DATA).sort().forEach(k => DAYS.push(k));
+  // Clear image caches
+  Object.keys(wikiImgCache).forEach(k => delete wikiImgCache[k]);
+  Object.keys(images).forEach(k => delete images[k]);
+  // Save to localStorage
+  localStorage.setItem('shokudoMenu', JSON.stringify(MENU_DATA));
+  closeModal();
+  document.getElementById('uploadSection').style.display = 'none';
+  // Jump to first day of new week
+  activeDay = DAYS[0];
+  buildTabs();
+  renderDay();
+}
+
+// Load saved menu from localStorage on startup
+function loadSavedMenu() {
+  try {
+    const saved = localStorage.getItem('shokudoMenu');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Replace MENU_DATA entirely (don't merge to avoid stale extra days)
+      Object.keys(MENU_DATA).forEach(k => delete MENU_DATA[k]);
+      Object.assign(MENU_DATA, parsed);
+      DAYS.length = 0;
+      Object.keys(MENU_DATA).sort().forEach(k => DAYS.push(k));
+    }
+  } catch(_) { localStorage.removeItem('shokudoMenu'); }
+}
+
+function init() {
+  loadSavedMenu();
+  activeDay = (() => { const t = todayKey(); return DAYS.includes(t) ? t : DAYS[0]; })();
+  buildTabs();
+  renderDay();
+  // Attach modal event listeners (after DOM is ready)
+  document.getElementById('weekStartDate')?.addEventListener('change', function() {
+    buildDayForms(this.value);
+  });
+  // Restore saved API key
+  const savedKey = localStorage.getItem('geminiApiKey');
+  if (savedKey) {
+    const keyInput = document.getElementById('geminiApiKey');
+    if (keyInput) keyInput.value = savedKey;
+  }
+  setTimeout(() => {
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab) activeTab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, 100);
+}
+
+init();
+</script>
+
+<!-- Week Menu Entry Modal -->
+<div class="modal-overlay" id="menuModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2>📋 อัปเดตเมนูประจำสัปดาห์</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <!-- Gemini API Key bar -->
+    <div style="padding:.6rem 1.4rem;border-bottom:1px solid var(--border);background:var(--accent-light);display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <span style="font-size:.75rem;color:var(--accent2);white-space:nowrap">🤖 Gemini API Key:</span>
+      <input type="password" id="geminiApiKey" placeholder="AIza... (ใส่เพื่อให้ AI อ่านเมนูอัตโนมัติ)"
+        style="flex:1;padding:5px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:.8rem;font-family:'Noto Sans JP',sans-serif">
+      <span id="aiStatus" style="font-size:.72rem;color:var(--green);white-space:nowrap"></span>
+    </div>
+    <div class="modal-body">
+      <div class="modal-img-side">
+        <img id="menuPreviewImg" src="" alt="เมนูที่อัปโหลด">
+      </div>
+      <div class="modal-form-side">
+        <div class="mf-row">
+          <label>วันเริ่มต้นสัปดาห์ (จันทร์)</label>
+          <input type="date" id="weekStartDate">
+        </div>
+        <div id="dayFormsContainer"></div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn-sec" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-pri" onclick="saveMenuFromForm()">💾 บันทึกเมนู</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食堂 Weekly Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#faf8f4; --surface:#fff; --surface2:#f3f0ea; --border:#e8e2d8;
+    --text:#2c2820; --text2:#7a7060; --text3:#b0a898;
+    --accent:#c8783c; --accent2:#8b5a2b; --accent-light:#fdf0e6;
+    --green:#4a7c59; --green-light:#edf5f0;
+    --blue:#3d6b8e; --blue-light:#edf3f8;
+    --radius:16px; --radius-sm:8px;
+    --shadow:0 2px 12px rgba(44,40,32,.08);
+    --shadow-lg:0 8px 32px rgba(44,40,32,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* Header */
+  header{background:var(--text);color:#fff;padding:2rem 2rem 1.5rem;position:relative;overflow:hidden}
+  header::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(200,120,60,.15)}
+  header::after{content:'';position:absolute;bottom:-30px;left:30%;width:140px;height:140px;border-radius:50%;background:rgba(200,120,60,.08)}
+  .header-inner{max-width:900px;margin:0 auto;position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+  .header-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,4vw,2.4rem);letter-spacing:.04em;line-height:1.1}
+  .header-title span{display:block;font-family:'Noto Sans JP',sans-serif;font-size:.7rem;font-weight:300;letter-spacing:.2em;color:rgba(255,255,255,.55);margin-bottom:4px;text-transform:uppercase}
+  .header-right{display:flex;align-items:center;gap:1rem}
+  .header-date{font-size:.78rem;color:rgba(255,255,255,.5);font-weight:300}
+  .admin-link{font-size:.72rem;color:rgba(255,255,255,.5);text-decoration:none;border:1px solid rgba(255,255,255,.2);padding:4px 10px;border-radius:100px;transition:all .2s}
+  .admin-link:hover{color:#fff;border-color:rgba(255,255,255,.6)}
+
+  /* Loading */
+  .loading-wrap{display:flex;align-items:center;justify-content:center;padding:5rem 1rem;flex-direction:column;gap:1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  .loading-text{font-size:.85rem;color:var(--text3)}
+
+  /* Empty */
+  .empty-state{text-align:center;padding:5rem 1rem}
+  .empty-icon{font-size:3rem;margin-bottom:1rem}
+  .empty-title{font-size:1rem;font-weight:500;color:var(--text);margin-bottom:.5rem}
+  .empty-desc{font-size:.85rem;color:var(--text2);line-height:1.6}
+  .empty-link{display:inline-block;margin-top:1.5rem;padding:10px 24px;background:var(--text);color:#fff;border-radius:100px;text-decoration:none;font-size:.85rem;font-weight:500;transition:opacity .2s}
+  .empty-link:hover{opacity:.85}
+
+  /* Nav */
+  .nav-wrap{max-width:900px;margin:0 auto;padding:1rem 1rem .5rem;position:sticky;top:0;z-index:100;background:var(--bg)}
+  .nav-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+  .nav-tabs::-webkit-scrollbar{display:none}
+  .tab-btn{flex-shrink:0;padding:8px 16px;border:1.5px solid var(--border);border-radius:100px;background:var(--surface);cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:.82rem;color:var(--text2);transition:all .18s;white-space:nowrap}
+  .tab-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .tab-btn.active{background:var(--text);border-color:var(--text);color:#fff;font-weight:500}
+  .today-dot{display:inline-block;width:5px;height:5px;background:var(--accent);border-radius:50%;margin-left:5px;vertical-align:middle}
+
+  /* Main */
+  .main{max-width:900px;margin:1rem auto 3rem;padding:0 1rem}
+
+  .date-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1.5px solid var(--border)}
+  .date-num{font-family:'Playfair Display',serif;font-size:3.5rem;line-height:1;letter-spacing:-.02em}
+  .date-info{display:flex;flex-direction:column;gap:4px}
+  .date-month{font-size:.8rem;color:var(--text2);letter-spacing:.08em}
+  .date-day{font-size:1rem;font-weight:500}
+  .today-badge{background:var(--accent);color:#fff;font-size:.7rem;padding:3px 10px;border-radius:100px;font-weight:500;align-self:flex-start}
+
+  /* Meal */
+  .meal-section{margin-bottom:1.5rem}
+  .meal-label{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+  .meal-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 14px 5px 10px;border-radius:100px;font-size:.8rem;font-weight:500;letter-spacing:.04em}
+  .meal-tag.asa{background:#fff8f0;color:var(--accent2);border:1.5px solid #f5d9bc}
+  .meal-tag.hiru{background:var(--green-light);color:var(--green);border:1.5px solid #c3dfcc}
+  .meal-tag.yu{background:var(--blue-light);color:var(--blue);border:1.5px solid #c0d6e8}
+  .meal-dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7}
+  .meal-line{flex:1;height:1px;background:var(--border)}
+
+  .meal-card{background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);display:flex}
+  .meal-image-wrap{width:200px;min-width:200px;background:var(--surface2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .meal-image-wrap img{width:100%;height:100%;object-fit:cover;min-height:160px;opacity:0;transition:opacity .4s}
+  .img-spinner-abs{position:absolute;width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  .meal-body{flex:1;padding:1.25rem 1.5rem;min-width:0}
+  .meal-main{font-size:.78rem;color:var(--text3);margin-bottom:.75rem;letter-spacing:.02em}
+  .meal-items{list-style:none;display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+  .meal-items li{font-size:.88rem;color:var(--text);display:flex;align-items:baseline;gap:8px;line-height:1.5}
+  .meal-items li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--text3);flex-shrink:0;position:relative;top:-1px;margin-top:8px}
+  .meal-footer{display:flex;align-items:center;gap:8px;padding-top:.75rem;border-top:1px solid var(--border)}
+  .kcal-label{font-size:.7rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+  .kcal-value{font-size:.9rem;font-weight:700;color:var(--accent)}
+
+  .no-data{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:.9rem}
+
+  @media(max-width:600px){
+    .meal-card{flex-direction:column}
+    .meal-image-wrap{width:100%;min-width:unset;min-height:180px}
+    .meal-body{padding:1rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title"><span>Shokudo</span>Weekly Menu</div>
+    <div class="header-right">
+      <div class="header-date" id="dateRange"></div>
+      <a href="/admin" class="admin-link">⚙️ Admin</a>
+    </div>
+  </div>
+</header>
+
+<div class="nav-wrap"><div class="nav-tabs" id="tabContainer"></div></div>
+<div class="main" id="mainContent">
+  <div class="loading-wrap"><div class="spinner"></div><div class="loading-text">กำลังโหลดเมนู...</div></div>
+</div>
+
+<script>
+const MENU_DATA = {};
+const DAYS = [];
+const DAY_TH = ['จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์','อาทิตย์'];
+const DAY_JP = ['月','火','水','木','金','土','日'];
+const MEALS = [
+  {key:'朝食',label:'มื้อเช้า',tag:'asa',icon:'🌅'},
+  {key:'昼食',label:'มื้อกลางวัน',tag:'hiru',icon:'☀️'},
+  {key:'夕食',label:'มื้อเย็น',tag:'yu',icon:'🌙'}
+];
+
+const wikiCache = {};
+let activeDay = null;
+
+function todayKey() {
+  const n = new Date();
+  return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+}
+
+function strHash(s) {
+  let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h)+s.charCodeAt(i); return Math.abs(h);
+}
+
+function aiImgUrl(dish) {
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent('Japanese food: '+dish+', food photography, overhead, soft lighting')}?width=400&height=280&nologo=true&seed=${strHash(dish)}`;
+}
+
+async function fetchWikiImg(dish, imgEl) {
+  if (wikiCache[dish]) { imgEl.src = wikiCache[dish]; return; }
+  try {
+    const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(dish)}`, {headers:{Accept:'application/json'}});
+    if (res.ok) {
+      const d = await res.json();
+      const src = d.thumbnail?.source;
+      if (src) { wikiCache[dish] = src; imgEl.src = src; return; }
+    }
+  } catch(_) {}
+  const ai = aiImgUrl(dish);
+  wikiCache[dish] = ai; imgEl.src = ai;
+}
+
+function buildTabs() {
+  const container = document.getElementById('tabContainer');
+  const today = todayKey();
+  container.innerHTML = '';
+  DAYS.forEach(dateKey => {
+    const d = new Date(dateKey+'T00:00:00');
+    const wi = (d.getDay()+6)%7;
+    const isToday = dateKey===today;
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn'+(dateKey===activeDay?' active':'');
+    btn.innerHTML = `<span>${d.getDate()}/${d.getMonth()+1}</span> ${DAY_JP[wi]}${isToday?'<span class="today-dot"></span>':''}`;
+    btn.onclick = ()=>{ activeDay=dateKey; buildTabs(); renderDay(); };
+    container.appendChild(btn);
+  });
+  if (DAYS.length >= 2) {
+    const first = new Date(DAYS[0]+'T00:00:00');
+    const last  = new Date(DAYS[DAYS.length-1]+'T00:00:00');
+    document.getElementById('dateRange').textContent =
+      `${first.getDate()}/${first.getMonth()+1} – ${last.getDate()}/${last.getMonth()+1}, ${first.getFullYear()}`;
+  }
+}
+
+function renderDay() {
+  const content = document.getElementById('mainContent');
+  const dateKey = activeDay;
+  if (!dateKey) return;
+  const d = new Date(dateKey+'T00:00:00');
+  const wi = (d.getDay()+6)%7;
+  const isToday = dateKey===todayKey();
+  const dayData = MENU_DATA[dateKey];
+
+  const MONTH_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  let html = `<div class="date-header">
+    <div class="date-num">${d.getDate()}</div>
+    <div class="date-info">
+      <div class="date-month">${MONTH_TH[d.getMonth()]} ${d.getFullYear()}</div>
+      <div class="date-day">วัน${DAY_TH[wi]} · ${DAY_JP[wi]}曜日</div>
+    </div>
+    ${isToday?'<div class="today-badge">วันนี้</div>':''}
+  </div>`;
+
+  if (!dayData || !Object.keys(dayData).length) {
+    html += '<div class="no-data">ไม่พบข้อมูลเมนูสำหรับวันนี้</div>';
+    content.innerHTML = html; return;
+  }
+
+  MEALS.forEach(meal => {
+    const info = dayData[meal.key];
+    if (!info) return;
+    const dish = info.items[0] || meal.label;
+    html += `<div class="meal-section">
+      <div class="meal-label">
+        <div class="meal-tag ${meal.tag}"><span class="meal-dot"></span>${meal.icon} ${meal.label} / ${meal.key}</div>
+        <div class="meal-line"></div>
+      </div>
+      <div class="meal-card">
+        <div class="meal-image-wrap">
+          <div class="img-spinner-abs" id="sp_${dateKey}_${meal.key}"></div>
+          <img id="im_${dateKey}_${meal.key}" data-dish="${dish}" alt="${meal.label}">
+        </div>
+        <div class="meal-body">
+          ${info.main?`<div class="meal-main">${info.main}</div>`:''}
+          <ul class="meal-items">${info.items.map(i=>`<li>${i}</li>`).join('')}</ul>
+          <div class="meal-footer">
+            <span class="kcal-label">แคลอรี่</span>
+            <span class="kcal-value">${info.kcal}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  content.innerHTML = html;
+
+  document.querySelectorAll('img[data-dish]').forEach(async imgEl => {
+    const sp = document.getElementById('sp_'+imgEl.id.slice(3));
+    await fetchWikiImg(imgEl.dataset.dish, imgEl);
+    imgEl.style.opacity = '1';
+    if (sp) sp.remove();
+  });
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/menu');
+    const data = await res.json();
+    Object.assign(MENU_DATA, data);
+    const dates = Object.keys(MENU_DATA).sort();
+    const daySet = new Set();
+    dates.forEach(dateStr => {
+      const d = new Date(dateStr + 'T00:00:00');
+      const day = d.getDay();
+      const diffToMonday = day === 0 ? -6 : 1 - day;
+      const monday = new Date(d);
+      monday.setDate(d.getDate() + diffToMonday);
+      for (let i = 0; i < 7; i++) {
+        const curr = new Date(monday);
+        curr.setDate(monday.getDate() + i);
+        const y = curr.getFullYear();
+        const m = String(curr.getMonth() + 1).padStart(2, '0');
+        const dt = String(curr.getDate()).padStart(2, '0');
+        daySet.add(`${y}-${m}-${dt}`);
+      }
+    });
+    Array.from(daySet).sort().forEach(k => DAYS.push(k));
+  } catch(e) {
+    console.error('Failed to load menu:', e);
+  }
+
+  if (!DAYS.length) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🍱</div>
+        <div class="empty-title">ยังไม่มีข้อมูลเมนู</div>
+        <div class="empty-desc">อัปโหลดรูปตารางเมนูผ่านหน้า Admin<br>แล้วข้อมูลจะแสดงที่นี่อัตโนมัติ</div>
+        <a href="/admin" class="empty-link">⚙️ ไปหน้า Admin</a>
+      </div>`;
+    return;
+  }
+
+  const today = todayKey();
+  activeDay = DAYS.includes(today) ? today : DAYS[0];
+  buildTabs();
+  renderDay();
+  setTimeout(() => {
+    const el = document.querySelector('.tab-btn.active');
+    if (el) el.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
+  }, 100);
+}
+
+init();
+</script>
+</body>
+</html>

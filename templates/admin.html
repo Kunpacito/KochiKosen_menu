@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Shokudo Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1117;--surface:#1a1d27;--surface2:#222535;--border:#2e3248;
+    --text:#e8eaf0;--text2:#9499b0;--text3:#5a5f78;
+    --accent:#c8783c;--accent2:#e8954a;--accent-bg:rgba(200,120,60,.1);
+    --green:#4a9d6e;--green-bg:rgba(74,157,110,.1);
+    --red:#e05555;--red-bg:rgba(224,85,85,.1);
+    --blue:#5b8dee;--blue-bg:rgba(91,141,238,.1);
+    --radius:12px;--radius-sm:8px;
+    --shadow:0 4px 20px rgba(0,0,0,.3);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+  /* Sidebar layout */
+  .layout{display:flex;min-height:100vh}
+  .sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 1rem;flex-shrink:0;display:flex;flex-direction:column;gap:.5rem}
+  .sidebar-logo{font-size:1.1rem;font-weight:600;color:var(--text);padding:.5rem .75rem;margin-bottom:.5rem}
+  .sidebar-logo span{display:block;font-size:.65rem;font-weight:400;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:.6rem .75rem;border-radius:var(--radius-sm);font-size:.85rem;color:var(--text2);text-decoration:none;transition:all .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left}
+  .nav-item:hover{background:var(--surface2);color:var(--text)}
+  .nav-item.active{background:var(--accent-bg);color:var(--accent2);font-weight:500}
+  .sidebar-spacer{flex:1}
+  .sidebar-footer{font-size:.72rem;color:var(--text3);padding:.5rem .75rem}
+
+  /* Main area */
+  .main-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface)}
+  .topbar h1{font-size:1rem;font-weight:600;color:var(--text)}
+  .topbar-right{display:flex;align-items:center;gap:.75rem}
+
+  /* Content panels */
+  .content{flex:1;overflow-y:auto;padding:1.5rem}
+
+  /* API Key bar */
+  .api-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+  .api-bar label{font-size:.75rem;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+  .api-bar input{flex:1;min-width:200px;padding:7px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.84rem;color:var(--text);font-family:monospace}
+  .api-bar input:focus{outline:none;border-color:var(--accent)}
+  .api-key-tip{font-size:.72rem;color:var(--text3)}
+  .api-key-tip a{color:var(--accent2);text-decoration:none}
+
+  /* Upload zone */
+  .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--surface)}
+  .upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:var(--accent-bg)}
+  .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .upload-icon{font-size:2.5rem;margin-bottom:.75rem}
+  .upload-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:.4rem}
+  .upload-sub{font-size:.82rem;color:var(--text2)}
+  .upload-hint{font-size:.72rem;color:var(--text3);margin-top:.5rem}
+
+  /* Status badge */
+  .status-bar{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;border-radius:var(--radius-sm);font-size:.82rem;margin-top:1rem}
+  .status-bar.info{background:var(--blue-bg);color:var(--blue)}
+  .status-bar.success{background:var(--green-bg);color:var(--green)}
+  .status-bar.error{background:var(--red-bg);color:var(--red)}
+  .status-bar.hidden{display:none}
+
+  /* Editor panel */
+  .editor-panel{display:none;margin-top:1.5rem;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+  .editor-panel.visible{display:block}
+  .editor-layout{display:flex;height:600px}
+  .editor-img{width:40%;background:#000;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:.75rem;flex-shrink:0}
+  .editor-img img{max-width:100%;border-radius:var(--radius-sm)}
+  .editor-form{flex:1;overflow-y:auto;padding:1.25rem}
+  .editor-hdr{padding:.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--surface2)}
+  .editor-hdr h2{font-size:.9rem;font-weight:600}
+
+  /* Day form */
+  .day-block{margin-bottom:1rem;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+  .day-title{padding:.6rem 1rem;background:var(--surface2);font-size:.82rem;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:8px}
+  .day-meals{padding:.75rem 1rem;display:flex;flex-direction:column;gap:.75rem}
+  .meal-row{display:grid;grid-template-columns:1.5rem 1fr 120px;gap:8px;align-items:start}
+  .meal-icon{font-size:1rem;padding-top:4px;text-align:center}
+  .meal-field label{font-size:.68rem;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;display:block}
+  .meal-field textarea,.meal-field input{width:100%;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:'Noto Sans JP',sans-serif;font-size:.82rem;color:var(--text);transition:border-color .15s;resize:vertical}
+  .meal-field textarea:focus,.meal-field input:focus{outline:none;border-color:var(--accent)}
+
+  /* Week start */
+  .week-start-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;padding:.75rem 1rem;background:var(--surface2);border-radius:var(--radius-sm)}
+  .week-start-row label{font-size:.75rem;color:var(--text3);font-weight:600;letter-spacing:.06em;white-space:nowrap}
+  .week-start-row input{padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.84rem;flex:1}
+  .week-start-row input:focus{outline:none;border-color:var(--accent)}
+
+  /* Buttons */
+  .btn{padding:9px 20px;border-radius:100px;font-family:'Inter','Noto Sans JP',sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent2)}
+  .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+  .btn-secondary:hover{color:var(--text);border-color:var(--text3)}
+  .btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(224,85,85,.2)}
+  .btn-danger:hover{background:var(--red);color:#fff}
+  .btn-sm{padding:6px 14px;font-size:.78rem}
+
+  .editor-footer{padding:.75rem 1.25rem;border-top:1px solid var(--border);display:flex;gap:.75rem;justify-content:flex-end;background:var(--surface2)}
+
+  /* DB Preview table */
+  .db-section{margin-top:2rem}
+  .section-title{font-size:.85rem;font-weight:600;color:var(--text2);letter-spacing:.04em;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
+  .db-table{width:100%;border-collapse:collapse;font-size:.8rem}
+  .db-table th{padding:.5rem .75rem;text-align:left;font-size:.68rem;color:var(--text3);font-weight:600;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  .db-table td{padding:.6rem .75rem;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .db-table tr:hover td{background:var(--surface2)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:.68rem;font-weight:600}
+  .badge-asa{background:#3a2010;color:#e8954a}
+  .badge-hiru{background:#0f2218;color:#4a9d6e}
+  .badge-yu{background:#0d1e30;color:#5b8dee}
+
+  @media(max-width:768px){
+    .sidebar{display:none}
+    .editor-layout{flex-direction:column;height:auto}
+    .editor-img{width:100%;max-height:200px}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo"><span>Shokudo</span>Admin Panel</div>
+    <a class="nav-item active" href="/admin">📤 อัปโหลดเมนู</a>
+    <a class="nav-item" href="/">👀 ดูเมนู (หน้าหลัก)</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-footer">shokudou_menu v2.0</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-area">
+    <div class="topbar">
+      <h1>📤 อัปโหลดและอัปเดตเมนูประจำสัปดาห์</h1>
+      <div class="topbar-right">
+        <a href="/" class="btn btn-secondary btn-sm">👀 ดูเมนู</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Fetch URL -->
+      <div style="background:var(--surface); padding:1.5rem; border-radius:var(--radius); border:1px solid var(--border); margin-bottom:1.5rem; display:flex; gap:1rem; align-items:center; flex-wrap:wrap;">
+        <div style="font-size:2rem;">🌐</div>
+        <div style="flex:1;">
+          <div style="font-weight:600; margin-bottom:0.25rem;">ดึงข้อมูลจากเว็บไซต์อัตโนมัติ (PDF)</div>
+          <div style="font-size:0.82rem; color:var(--text2); margin-bottom:0.75rem;">ระบุวันที่เริ่มต้นสัปดาห์ (วันจันทร์) เพื่อดึงตารางเมนู PDF จากเว็บโรงเรียน Kochi KOSEN</div>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="date" id="fetchDate" style="padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-family:inherit;">
+            <button class="btn btn-primary btn-sm" onclick="fetchFromUrl()">ดึงข้อมูลอัตโนมัติ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload -->
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="menuFile" accept="image/*">
+        <div class="upload-icon">📋</div>
+        <div class="upload-title">อัปโหลดรูปตารางเมนูประจำสัปดาห์</div>
+        <div class="upload-sub">ถ่ายรูปหรือสแกนตารางเมนู แล้ววางหรือคลิกเพื่อเลือกไฟล์</div>
+        <div class="upload-hint">รองรับ: JPG, PNG · AI จะอ่านตารางและเติมข้อมูลให้อัตโนมัติ</div>
+      </div>
+
+      <!-- Status -->
+      <div class="status-bar hidden" id="statusBar"></div>
+
+      <!-- Editor panel -->
+      <div class="editor-panel" id="editorPanel">
+        <div class="editor-hdr">
+          <h2>✏️ ตรวจสอบและแก้ไขข้อมูลก่อนบันทึก</h2>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-secondary btn-sm" onclick="clearEditor()">✕ ยกเลิก</button>
+            <button class="btn btn-primary btn-sm" onclick="saveMenu()">💾 บันทึกลง Database</button>
+          </div>
+        </div>
+        <div class="editor-layout">
+          <div class="editor-img">
+            <img id="previewImg" src="" alt="เมนูที่อัปโหลด" style="max-width:100%; border-radius:var(--radius-sm);">
+            <iframe id="previewPdf" style="display:none; width:100%; height:100%; min-height:400px; border:none; border-radius:var(--radius-sm);"></iframe>
+          </div>
+          <div class="editor-form" id="editorForm">
+            <div class="week-start-row">
+              <label>วันเริ่มต้นสัปดาห์</label>
+              <input type="date" id="weekStart">
+              <button class="btn btn-secondary btn-sm" onclick="rebuildForm()">🔄 สร้างฟอร์มใหม่</button>
+            </div>
+            <div id="dayForms"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DB Records -->
+      <div class="db-section">
+        <div class="section-title">
+          <span>📊 ข้อมูลใน Database</span>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn btn-danger btn-sm" onclick="deleteAll()">🗑️ ลบทั้งหมด</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadDbPreview()">🔄 รีเฟรช</button>
+          </div>
+        </div>
+        <div id="dbPreview"><div style="color:var(--text3);font-size:.82rem">กำลังโหลด...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAY_TH=['จันทร์','อังคาร','พุธ','พฤหัส','ศุกร์','เสาร์','อาทิตย์'];
+const DAY_JP=['月','火','水','木','金','土','日'];
+const MEAL_DEFS=[{key:'朝食',icon:'🌅',label:'มื้อเช้า'},{key:'昼食',icon:'☀️',label:'มื้อกลางวัน'},{key:'夕食',icon:'🌙',label:'มื้อเย็น'}];
+
+// Upload zone
+const zone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('menuFile');
+zone.addEventListener('dragover', e=>{e.preventDefault();zone.classList.add('drag-over')});
+zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag-over');handleFile(e.dataTransfer.files[0])});
+fileInput.addEventListener('change',e=>handleFile(e.target.files[0]));
+
+function setStatus(msg, type='info') {
+  const bar = document.getElementById('statusBar');
+  bar.textContent = msg; bar.className = 'status-bar '+type;
+}
+function hideStatus() { document.getElementById('statusBar').className='status-bar hidden'; }
+
+async function handleFile(file) {
+  if (!file || !file.type.startsWith('image/')) {
+    setStatus('⚠️ กรุณาเลือกไฟล์รูปภาพ (JPG/PNG)', 'error'); return;
+  }
+
+  // Setup default dates
+  const d = new Date();
+  d.setDate(d.getDate()+((1-d.getDay()+7)%7||7));
+  document.getElementById('weekStart').value = d.toISOString().slice(0,10);
+
+  document.getElementById('previewPdf').style.display = 'none';
+  document.getElementById('previewImg').style.display = 'block';
+
+  // Show preview immediately
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('editorPanel').classList.add('visible');
+  };
+  reader.readAsDataURL(file);
+
+  // Call backend to parse with Gemini (no api_key needed — set in app.py)
+  setStatus('🤖 AI กำลังอ่านตารางเมนู... อาจใช้เวลา 10-20 วินาที', 'info');
+  const formData = new FormData();
+  formData.append('image', file);
+  try {
+      const res = await fetch('/api/parse-image', {method:'POST', body:formData});
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+      document.getElementById('previewImg').src = result.file_url;
+      if (result.data?.days?.length) {
+        const startDate = result.data.days[0].date;
+        document.getElementById('weekStart').value = startDate;
+        buildDayForms(startDate, result.data.days);
+        setStatus(`✅ AI อ่านได้ ${result.data.days.length} วัน — กรุณาตรวจสอบก่อนบันทึก`, 'success');
+      } else {
+        buildDayForms(document.getElementById('weekStart').value);
+        setStatus('⚠️ AI อ่านได้บางส่วน กรุณาตรวจสอบและแก้ไขเพิ่มเติม', 'info');
+      }
+    } catch(e) {
+      setStatus('❌ AI อ่านไม่ได้: '+e.message, 'error');
+      buildDayForms(document.getElementById('weekStart').value);
+    }
+}
+
+// Init default fetch date
+function initDefaultDate() {
+  const d = new Date();
+  // ถ้าเป็นวันจันทร์ (1) ให้ใช้เลข 1 เลย ไม่ต้องบวกเพิ่มไป 7 วัน
+  const day = d.getDay();
+  const diff = (1 - day + 7) % 7;
+  d.setDate(d.getDate() + diff);
+  const iso = d.toISOString().slice(0,10);
+  document.getElementById('fetchDate').value = iso;
+}
+initDefaultDate();
+
+async function fetchFromUrl() {
+  const dateStr = document.getElementById('fetchDate').value;
+  if (!dateStr) return setStatus('⚠️ กรุณาเลือกวันที่ก่อน', 'error');
+  
+  setStatus(`🤖 กำลังดาวน์โหลดและให้ AI อ่าน PDF ของวันที่ ${dateStr}... (อาจใช้เวลา 10-20 วินาที)`, 'info');
+  document.getElementById('editorPanel').classList.add('visible');
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('previewPdf').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/fetch-url-menu', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: dateStr })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+    
+    // Show PDF with cache buster
+    document.getElementById('previewPdf').src = result.file_url + '?t=' + new Date().getTime();
+    document.getElementById('previewPdf').style.display = 'block';
+    
+    if (result.data?.days?.length) {
+      const startDate = result.data.days[0].date;
+      document.getElementById('weekStart').value = startDate;
+      buildDayForms(startDate, result.data.days);
+      setStatus(`✅ AI อ่านได้ ${result.data.days.length} วัน — กรุณาตรวจสอบก่อนบันทึก`, 'success');
+    } else {
+      document.getElementById('weekStart').value = dateStr;
+      buildDayForms(dateStr);
+      setStatus('⚠️ AI อ่านได้บางส่วน กรุณาตรวจสอบและแก้ไขเพิ่มเติม', 'info');
+    }
+  } catch(e) {
+    setStatus('❌ AI อ่านไม่ได้: ' + e.message, 'error');
+    document.getElementById('weekStart').value = dateStr;
+    buildDayForms(dateStr);
+  }
+}
+
+function toLocalIsoString(dd) {
+  return `${dd.getFullYear()}-${String(dd.getMonth() + 1).padStart(2, '0')}-${String(dd.getDate()).padStart(2, '0')}`;
+}
+
+function buildDayForms(startIso, prefilled) {
+  const start = new Date(startIso+'T00:00:00');
+  let html = '';
+  for (let i=0;i<7;i++) {
+    const dd = new Date(start); dd.setDate(start.getDate()+i);
+    const dateStr = toLocalIsoString(dd);
+    const wi = (dd.getDay()+6)%7;
+    const aiDay = prefilled?.find(x=>x.date===dateStr);
+    html += `<div class="day-block">
+      <div class="day-title">📅 ${dd.getDate()}/${dd.getMonth()+1} วัน${DAY_TH[wi]} (${DAY_JP[wi]})</div>
+      <div class="day-meals">`;
+    MEAL_DEFS.forEach(m=>{
+      const ex = aiDay?.[m.key] || {};
+      html += `<div class="meal-row">
+        <div class="meal-icon">${m.icon}</div>
+        <div class="meal-field">
+          <label>${m.label} — รายการ (คั่นด้วยจุลภาค)</label>
+          <textarea rows="2" id="items_${dateStr}_${m.key}">${(ex.items||[]).join(',')}</textarea>
+        </div>
+        <div class="meal-field">
+          <label>แคลอรี่</label>
+          <input type="text" id="kcal_${dateStr}_${m.key}" placeholder="900kcal" value="${ex.kcal||''}">
+        </div>
+      </div>`;
+    });
+    html += '</div></div>';
+  }
+  document.getElementById('dayForms').innerHTML = html;
+}
+
+function rebuildForm() { buildDayForms(document.getElementById('weekStart').value); }
+function clearEditor() {
+  document.getElementById('editorPanel').classList.remove('visible');
+  hideStatus();
+  document.getElementById('menuFile').value = '';
+}
+
+async function saveMenu() {
+  const startVal = document.getElementById('weekStart').value;
+  if (!startVal) { alert('กรุณาระบุวันเริ่มต้นสัปดาห์'); return; }
+  const start = new Date(startVal+'T00:00:00');
+  const payload = {};
+  for (let i=0;i<7;i++) {
+    const dd = new Date(start); dd.setDate(start.getDate()+i);
+    const dateStr = toLocalIsoString(dd);
+    payload[dateStr] = {};
+    MEAL_DEFS.forEach(m=>{
+      const raw = document.getElementById(`items_${dateStr}_${m.key}`)?.value || '';
+      const kcal = document.getElementById(`kcal_${dateStr}_${m.key}`)?.value || '';
+      const items = raw.split(',').map(s=>s.trim()).filter(Boolean);
+      if (items.length) payload[dateStr][m.key] = {main:'', items, kcal};
+    });
+  }
+  setStatus('💾 กำลังบันทึก...', 'info');
+  try {
+    const res = await fetch('/api/menu/save', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+    setStatus(`✅ บันทึกสำเร็จ! ${result.saved} รายการ — ข้อมูลพร้อมแสดงในหน้าเมนูแล้ว`, 'success');
+    clearEditor();
+    loadDbPreview();
+  } catch(e) {
+    setStatus('❌ บันทึกไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+// DB Preview
+async function loadDbPreview() {
+  try {
+    const res = await fetch('/api/menu');
+    const data = await res.json();
+    const dates = Object.keys(data).sort();
+    if (!dates.length) {
+      document.getElementById('dbPreview').innerHTML =
+        '<div style="color:var(--text3);font-size:.82rem;padding:1rem 0">ยังไม่มีข้อมูลใน database</div>';
+      return;
+    }
+    const BADGE = {'朝食':'badge-asa','昼食':'badge-hiru','夕食':'badge-yu'};
+    const MLABEL = {'朝食':'เช้า','昼食':'กลางวัน','夕食':'เย็น'};
+    let rows = '';
+    dates.forEach(d=>{
+      const dd = new Date(d+'T00:00:00');
+      let firstMeal = true;
+      const mealCount = Object.keys(data[d]).length;
+      Object.entries(data[d]).forEach(([meal,info])=>{
+        rows += `<tr>`;
+        if (firstMeal) {
+          rows += `<td rowspan="${mealCount}">
+            ${dd.getDate()}/${dd.getMonth()+1}/${dd.getFullYear()}<br>
+            <button class="btn btn-danger btn-sm" style="margin-top:4px; padding:2px 6px; font-size:0.7rem;" onclick="deleteDay('${d}')">🗑️ ลบทั้งวัน</button>
+          </td>`;
+        }
+        rows += `<td><span class="badge ${BADGE[meal]}">${MLABEL[meal]}</span></td>
+          <td>${info.items.slice(0,2).join(', ')}${info.items.length>2?` +${info.items.length-2}`:''}</td>
+          <td>${info.kcal}</td>
+        </tr>`;
+        firstMeal = false;
+      });
+    });
+    document.getElementById('dbPreview').innerHTML = `
+      <table class="db-table">
+        <thead><tr><th>วันที่</th><th>มื้อ</th><th>รายการ</th><th>แคลอรี่</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch(e) {
+    document.getElementById('dbPreview').innerHTML =
+      '<div style="color:var(--red);font-size:.82rem">โหลดไม่ได้: '+e.message+'</div>';
+  }
+}
+
+async function deleteDay(dateStr) {
+  if (!confirm(`ยืนยันการลบข้อมูลเมนูของวันที่ ${dateStr} ทั้งหมด?`)) return;
+  try {
+    const res = await fetch('/api/menu/delete-day', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: dateStr })
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+    setStatus(`✅ ลบข้อมูลวันที่ ${dateStr} เรียบร้อยแล้ว`, 'success');
+    loadDbPreview();
+  } catch(e) {
+    setStatus('❌ ลบข้อมูลไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+async function deleteAll() {
+  if (!confirm(`⚠️ คำเตือน: คุณแน่ใจหรือไม่ที่จะลบข้อมูลเมนู "ทั้งหมด" ออกจากระบบ?\n(การกระทำนี้ไม่สามารถกู้คืนได้)`)) return;
+  try {
+    const res = await fetch('/api/menu/delete-all', { method: 'POST' });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error);
+    setStatus(`✅ ลบข้อมูลทั้งหมดเรียบร้อยแล้ว`, 'success');
+    loadDbPreview();
+  } catch(e) {
+    setStatus('❌ ลบข้อมูลไม่สำเร็จ: '+e.message, 'error');
+  }
+}
+
+loadDbPreview();
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+
+# Environment Variables (IMPORTANT!)
+.env
+
+# Database
+*.db
+
+# Logs & Debug
+debug.txt
+debug_api.txt
+last_json_raw.json
+models_output.json
+models_v1beta.txt
+
+# Uploads
+static/uploads/*
+!static/uploads/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
