@@ -43,15 +43,9 @@ def init_db():
                 UNIQUE(date, meal_type)
             )
         ''')
-        conn.execute('''
-            CREATE TABLE IF NOT EXISTS sync_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                date_monday TEXT,
-                status TEXT,
-                error_msg TEXT,
-                attempted_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
+        # ตารางเก็บ log การ sync เพื่อทำ Cooldown
+        conn.execute('''CREATE TABLE IF NOT EXISTS sync_logs (
+                            key TEXT PRIMARY KEY, last_sync TEXT)''')
         conn.commit()
 
 init_db()
@@ -140,21 +134,21 @@ def sync_menu_from_school():
     monday_str = monday.strftime("%Y-%m-%d")
     
     with get_db() as conn:
-        # 1. Check if data already exists
+        # 1. เช็คว่ามีข้อมูลของสัปดาห์นี้หรือยัง
         row = conn.execute('SELECT 1 FROM menu_data WHERE date = ? LIMIT 1', (monday_str,)).fetchone()
         if row: return
 
-        # 2. Check persistent cooldown (don't retry more than once every 1 hour if it failed)
-        last_log = conn.execute('''
-            SELECT attempted_at FROM sync_logs 
-            WHERE date_monday = ? AND status = 'error' 
-            ORDER BY attempted_at DESC LIMIT 1
-        ''', (monday_str,)).fetchone()
-        
-        if last_log:
-            last_time = datetime.strptime(last_log['attempted_at'], '%Y-%m-%d %H:%M:%S')
-            if (now - last_time).total_seconds() < 3600: # 1 hour cooldown
-                return
+        # 2. เช็ค Cooldown (ถ้าเคยดึงแล้วพลาด ไม่ต้องดึงซ้ำทุกวินาที)
+        log = conn.execute('SELECT last_sync FROM sync_logs WHERE key = ?', (monday_str,)).fetchone()
+        if log:
+            last_time = datetime.fromisoformat(log[0])
+            if datetime.now() - last_time < timedelta(hours=1):
+                return # ยังไม่ถึงเวลาลองใหม่ (Cooldown 1 ชม.)
+
+        # บันทึกว่ากำลังพยายามดึง
+        conn.execute('INSERT OR REPLACE INTO sync_logs (key, last_sync) VALUES (?, ?)', 
+                     (monday_str, datetime.now().isoformat()))
+        conn.commit()
 
     # 3. Proceed with sync
     url_date = monday.strftime("%Y%m%d")
