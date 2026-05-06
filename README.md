@@ -1,31 +1,32 @@
-# 🍱 Shokudou Menu (ระบบจัดการเมนูโรงอาหารอัจฉริยะ)
+# 🍱 Kochi Kosen Shokudou Menu
+> **ระบบจัดการเมนูโรงอาหารอัจฉริยะแบบอัตโนมัติ (AI-Powered Library)**
 
-ระบบจัดการและแสดงผลเมนูอาหารรายสัปดาห์แบบอัตโนมัติ สำหรับโรงอาหาร Kochi NIT (Kosen) โดยใช้พลังของ AI (Gemini API) ในการอ่านไฟล์ PDF/รูปภาพ และแสดงผลผ่านหน้าเว็บที่สวยงามและใช้งานง่าย
+แอปพลิเคชันเว็บที่ช่วยให้นักเรียนและบุคลากรเข้าถึงเมนูโรงอาหารของ **Kochi NIT (Kosen)** ได้อย่างง่ายดาย โดยระบบจะดึงข้อมูลจากไฟล์ PDF ของโรงเรียนโดยอัตโนมัติ และใช้ AI ในการสกัดข้อมูลออกมาแสดงผลในรูปแบบที่สวยงามและทันสมัย
 
 ---
 
 ## 🌟 คุณสมบัติเด่น (Features)
 
-*   **🔄 Auto-Sync**: ดึงไฟล์ PDF เมนูจากเว็บไซต์โรงอาหารโดยอัตโนมัติอ้างอิงตามสัปดาห์ปัจจุบัน
-*   **🤖 AI Parser**: ใช้ **Gemini 1.5 Flash** ในการสกัดข้อมูลเมนูอาหารญี่ปุ่นจาก PDF เป็น JSON อย่างแม่นยำ
-*   **📅 Weekly Dashboard**: หน้าเมนูสำหรับนักเรียนที่รองรับ Dark Mode และ Responsive (มือถือดูง่าย)
-*   **🖼️ AI Food Images**: สร้างรูปภาพจำลองเมนูอาหารให้น่ารับประทานโดยใช้ Pollinations AI
-*   **🛡️ Admin Panel**: ระบบจัดการหลังบ้านที่ครบครัน (Upload, URL Fetch, Manual Edit, Delete)
-*   **🔒 Security First**: จัดเก็บ API Key ผ่าน Environment Variables ป้องกันรหัสหลุดสู่สาธารณะ
+*   **🔄 Automated Sync**: ระบบจะตรวจสอบและดึงไฟล์ PDF เมนูล่าสุดจากเว็บไซต์โรงเรียนโดยอัตโนมัติอ้างอิงตามสัปดาห์ปัจจุบัน
+*   **🤖 AI Data Extraction**: ใช้เทคโนโลยี **Google Gemini (2.5 Flash / 2.0 Flash)** ในการอ่านและสกัดข้อมูลเมนูอาหารญี่ปุ่นจาก PDF/รูปภาพ แปลงเป็นข้อมูลดิจิทัลที่แม่นยำ
+*   **📱 Modern & Responsive UI**: หน้าเมนูออกแบบด้วยสไตล์ Premium Glassmorphism รองรับการแสดงผลทุกหน้าจอ (Mobile-First)
+*   **🖼️ Dynamic AI Food Previews**: แสดงรูปภาพเมนูอาหารจำลองที่สร้างโดย AI เพื่อเพิ่มความน่ารับประทาน
+*   **⚙️ Powerful Admin Panel**: ระบบจัดการหลังบ้านที่สามารถอัปโหลดไฟล์เอง, แก้ไขข้อมูลด้วยมือ, หรือลบข้อมูลเพื่อ Sync ใหม่ได้
+*   **💾 Multi-Database Support**: รองรับทั้ง **SQLite** (สำหรับการใช้งานส่วนตัว) และ **PostgreSQL** (สำหรับการ Deploy ขึ้น Production)
 
 ---
 
-## 🛠️ เทคโนโลยี (Tech Stack)
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-*   **Backend**: Python (Flask)
-*   **Database**: SQLite3
-*   **AI Engine**: Google Gemini 1.5 Flash (API)
-*   **Deployment**: Render.com / Gunicorn
-*   **Frontend**: Vanilla HTML5, Modern CSS (Glassmorphism), JavaScript (ES6)
+*   **Backend**: Python 3.12+ (Flask Framework)
+*   **AI Engine**: Google Gemini API (Multimodal v1beta)
+*   **Database**: SQLite (Local) / PostgreSQL (Production)
+*   **Frontend**: Vanilla HTML5, Modern CSS, JavaScript (ES6)
+*   **Deployment**: Render.com / Gunicorn WSGI
 
 ---
 
-## 🚀 การติดตั้งและเริ่มใช้งาน (Local Installation)
+## 🚀 เริ่มต้นใช้งาน (Local Installation)
 
 1.  **Clone Repository**
     ```bash
@@ -33,54 +34,56 @@
     cd KochiKosen_menu
     ```
 
-2.  **Install Dependencies**
+2.  **ติดตั้ง Library ที่จำเป็น**
     ```bash
     pip install -r requirements.txt
     ```
 
-3.  **Setup Environment Variables**
+3.  **ตั้งค่า Environment Variables**
     *   สร้างไฟล์ `.env` ในโฟลเดอร์หลัก
     *   เพิ่ม API Key ของคุณ:
     ```env
-    GEMINI_API_KEY=your_api_key_here
+    GEMINI_API_KEY=AIzaSy... (คีย์ของคุณจาก Google AI Studio)
     ```
 
-4.  **Run Application**
+4.  **รันแอปพลิเคชัน**
     ```bash
     python app.py
     ```
-    เข้าใช้งานที่: `http://localhost:5000`
+    เข้าใช้งานได้ที่: `http://127.0.0.1:5000`
 
 ---
 
-## 🌐 การนำขึ้น Server (Deployment to Render)
+## 🌐 การนำขึ้น Server (Deployment)
 
-โปรเจคนี้พร้อมสำหรับการ Deploy บน Render.com ทันที:
-1.  **Push โค้ดขึ้น GitHub** (ตั้งค่า Repository เป็น **Private**)
-2.  **เชื่อมต่อกับ Render**: สร้าง Web Service ใหม่และเลือก Repo นี้
-3.  **ตั้งค่า Environment**: ในหน้า Dashboard ของ Render ให้เพิ่ม Variable ชื่อ `GEMINI_API_KEY`
-4.  **Build & Start**: 
-    *   Build: `pip install -r requirements.txt`
-    *   Start: `gunicorn app:app`
+โปรเจกต์นี้ได้รับการกำหนดค่าให้พร้อมสำหรับ **Render.com**:
+
+1.  **GitHub**: Push โค้ดขึ้น Repository ส่วนตัวของคุณ
+2.  **Render Setup**: สร้าง "Web Service" ใหม่และเลือก Repo นี้
+3.  **Environment**: เพิ่ม Variable ชื่อ `GEMINI_API_KEY` ในหน้า Settings
+4.  **Database (Optional)**: หากต้องการความทนทานของข้อมูล แนะนำให้เชื่อมต่อกับ External PostgreSQL โดยเพิ่ม Variable `DATABASE_URL` (หากไม่ใส่ ระบบจะใช้ SQLite เป็นค่าเริ่มต้น)
 
 ---
 
-## 📁 โครงสร้างโปรเจค (Project Structure)
+## 📁 โครงสร้างโปรเจกต์ (Project Structure)
 
 ```text
-shokudou_menu/
-├── app.py              # Backend Logic & AI Integration
-├── .env                # เก็บ API Key (ห้ามอัปโหลด!)
-├── .gitignore          # ระบุไฟล์ที่ไม่ต้องการนำขึ้น GitHub
-├── Procfile            # คำสั่งสำหรับรันบน Server (Render)
-├── requirements.txt    # รายการ Library ที่ต้องใช้
-├── templates/          # HTML Templates (menu.html, admin.html)
-├── static/             # Static Assets & Uploads
-└── README.md           # คู่มือการใช้งาน
+KochiKosen_menu/
+├── app.py              # ระบบหลักและการเชื่อมต่อ AI
+├── requirements.txt    # รายการ Library ทั้งหมด
+├── .env                # ไฟล์เก็บรหัสผ่าน (ห้ามแชร์!)
+├── shokudou.db         # ไฟล์ฐานข้อมูล SQLite (Local)
+├── static/             # ไฟล์รูปภาพและ CSS
+├── templates/          # หน้าเว็บ (เมนู และ Admin)
+└── README.md           # คู่มือการใช้งานนี้
 ```
 
 ---
 
 ## 📝 หมายเหตุ
-- ข้อมูลใน SQLite (`shokudou.db`) จะหายไปหากใช้ Render แผนฟรี (Ephemeral Storage) แต่ระบบสามารถ Sync ข้อมูลใหม่ได้เสมอ
-- พัฒนาต่อยอดจากโปรเจค **RoadToIntern** โดย [Kunna]
+- พัฒนาเพื่อช่วยให้นักเรียนสามารถเช็คเมนูอาหารได้สะดวกยิ่งขึ้น
+- ข้อมูลเมนูอ้างอิงโดยตรงจากเว็บไซต์อย่างเป็นทางการของ Kochi NIT
+
+---
+**Developed by [Kunna]**  
+*Part of the RoadToIntern Journey*
